@@ -7,7 +7,13 @@ const acquaintanceHandler = require('./handlers/acquaintanceHandler');
 const messages = require('./messages/ru');
 const validator = require('./utils/validator');
 
-const bot = new TelegramBot(process.env.TOKEN, {polling: true});
+const bot = new TelegramBot(process.env.TOKEN, {
+    polling: {
+    autoStart: true,
+  }
+});
+
+bot.getUpdates({ offset: -1 });
 
 bot.setMyCommands([
     { command: '/start', description: 'Выбор города' },
