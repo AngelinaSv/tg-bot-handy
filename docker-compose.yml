@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:15
+    container_name: tgbot-db
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: testdb
+    ports:
+      - "5433:5432"  # используем 5433 вместо 5432
+    volumes:
+      - tgbot_db-data:/var/lib/postgresql/data
+
+volumes:
+  tgbot_db-data:
