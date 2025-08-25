@@ -12,6 +12,10 @@ class WeatherService {
     async getWeather(chatId) {
         const city = await UserService.getUserCity(chatId);
 
+        if (!city) {
+            return null;
+        }
+
         const { data } = await this.api.get('/current.json', {
             params: {
                 key: process.env.WEATHER_API_KEY,

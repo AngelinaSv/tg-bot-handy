@@ -1,9 +1,9 @@
 const CurrencyService = require('../services/currency.service');
 const messages = require('../messages/ru');
 
-const userSelections = {};
+const MIN_SELECTED_CURRENCIES = 2;
 
-// const allowedCurrencies = [ 'USD', 'EUR', 'UAH', 'PLN', 'BYN', 'KZT', 'MDL', 'RUB'];
+const userSelections = {};
 
 const currencies = {
     USD: { text: 'USD', callback_data: 'USD' },
@@ -47,7 +47,7 @@ function generateCurrencyKeyboard(selected) {
         ]
     };
 
-    if (selected.length === 2) {
+    if (selected.length === MIN_SELECTED_CURRENCIES) {
         const button = [{ text: 'Подтвердить', callback_data: "confirmSelection" }];
         keyboard.inline_keyboard.push(button);
     }
@@ -64,7 +64,7 @@ async function chooseCurrency(bot, chatId, query) {
         return bot.sendMessage(chatId, messages.chooseCurrency, currencyOptions);
     }
 
-    if (selectedCurrencies && (selectedCurrencies.length < 2 || !userSelections[chatId].confirmSelection)) {
+    if (selectedCurrencies && (selectedCurrencies.length < MIN_SELECTED_CURRENCIES || !userSelections[chatId].confirmSelection)) {
         return bot.editMessageText(messages.chooseCurrency, {
             chat_id: chatId,
             message_id: messageId,
@@ -100,8 +100,6 @@ function saveCurrency(chatId, query) {
     } else {
         userSelections[chatId].currencies.push(currency);
     }
-   
-    return;
 }
 
 function chooseAmount(bot, chatId) {
@@ -114,7 +112,7 @@ async function convert(bot, chatId, msg) {
     const currencies = userSelections[chatId].currencies;
     const [ from, to ] = currencies;
 
-    if (currencies && currencies.length === 2) {
+    if (currencies && currencies.length === MIN_SELECTED_CURRENCIES) {
         try {
             const data = await CurrencyService.convert(from, to, msg);
             return bot.sendMessage(chatId, messages.conversionResult(data, to));
@@ -127,7 +125,6 @@ async function convert(bot, chatId, msg) {
 
 function clearUserSelections(chatId) {
     delete userSelections[chatId];
-    return;
 }
 
 module.exports = { chooseCurrency, convert, saveCurrency, clearUserSelections };
